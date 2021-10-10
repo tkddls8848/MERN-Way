@@ -20,9 +20,18 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.post('/posting-todos', (request, response) => {
 
         try {
-            db.collection('post').insertOne({title: request.body.title, date: request.body.date});
-            console.log(request.body.title, request.body.date);
-            response.sendFile(__dirname + "/view/home.html");
+            db.collection('counter').findOne({name: 'totalcount'}, (err, result) => {
+                console.log(result.count);
+                let cnt = result.count;
+                db.collection('post').insertOne({cnt: cnt, title: request.body.title, date: request.body.date});
+                console.log(cnt, request.body.title, request.body.date);
+                response.sendFile(__dirname + "/view/home.html");
+                db.collection('counter').updateOne({name: 'totalcount'}, {$inc: {count: 1}}, (err, result) => {
+                    if(err){
+                        console.log(err);
+                    }
+                })
+            });
         } catch (e) {
             console.log(e);
         };
