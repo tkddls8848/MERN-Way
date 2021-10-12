@@ -37,6 +37,17 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.put('/add', (request,response) => {
         try {
             db.collection('post').updateOne({cnt : parseInt(request.body.cnt)}, {$set: {title: request.body.title, date: request.body.date}},(err,result) => {
+                response.redirect("/");
+            });
+        } catch (e) {
+            console.log(e);
+        }
+    });
+
+    app.delete('/delete', (request, response) => {
+        console.log("DELETE", request.body)
+        try {
+            db.collection('post').deleteOne({cnt : parseInt(request.body.cnt)},(err,result) => {
                 response.render(__dirname + "/view/home.ejs");
             });
         } catch (e) {
@@ -68,7 +79,8 @@ MongoClient.connect(AuthUrl, (err, client) => {
         } catch (e) {
             console.log(e);
         }
-    })
+    });
+
 });
 
 app.get('/', (request, response) => {
