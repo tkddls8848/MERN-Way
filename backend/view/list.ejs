@@ -23,16 +23,16 @@
             <h5 class="card-title"><%= posts[i].title %></h5>
             <h6 class="card-subtitle mb-2 text-muted">번호 : <%= posts[i].cnt %></h6>
             <h6 class="card-subtitle mb-2 text-muted">날짜 : <%= posts[i].date %></h6>
-            <p class="card-text">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
+            <p class="card-text">Card Ipsum Lorem.</p>
             <a href="/edit/<%= posts[i].cnt %>"><button type="button" class="btn btn-outline-primary" id="edit">수정</button></a>
-            <button type="button" class="btn btn-danger" id="delete", value="<%= posts[i].cnt %>">삭제</button>
+            <span class="delete" ><button type="button" class="btn btn-danger" value="<%= posts[i].cnt %>">삭제</button></span>
           </div>
         </div>
         <% } %>
     </div>
-    <p></p>
+
     <div class="container mt-6">
-      <a href="/"><button type="button" class="btn btn-primary" >HOME</button></a>
+      <a href="/"><button type="button" class="btn btn-primary">HOME</button></a>
     </div>
 
     <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
@@ -40,16 +40,19 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
 
     <script>
-      $('#delete').click((e) => {
-        $.ajax({
-          url:"/delete/",
-          method: "DELETE",
-          data: {cnt: e.target.value}
-        }).done((result) => {
-          console.log(result);
-          location.reload();
+        $('.delete').click((e) => {
+          console.log(e.target)
+          $.ajax({
+            url:"/delete/",
+            method: "DELETE",
+            data: {cnt: e.target.value}
+          }).done((result) => {
+            location.reload()
+          }).fail((err) => {
+            console.log("err", err);
+          })
         })
-      })
+
     </script>
 
   </body>
