@@ -15,20 +15,20 @@
     <%- include('../nav/nav.ejs') %>
 
     <!--form group-->
-    <h4 class="text-center container mt-4"><strong>글 작성페이지</strong></h4>
+    <h4 class="text-center container mt-4"><strong>LOGIN</strong></h4>
 
-    <div class="container mt-3">
-        <form action="/add" method="POST">
+    <div class="container mt-4">
+        <form action="/login" method="POST">
             <div class="form-group">
-                <label>오늘의 할일</label>
-                <input type="text" class="form-control" name="title">
+                <label>ID : </label>
+                <input type="text" class="form-control" name="id"></input>
             </div>
             <div class="form-group">
-                <label>날짜</label>
-                <input type="date" class="form-control" name="date">
+                <label>PW : </label>
+                <input type="text" class="form-control" name="pw"></input>
             </div>
-            <button type="submit" class="btn btn-outline-secondary">Submit</button>
-        </form> 
+            <button type="submit" class="btn btn-primary">SUBMIT</button>
+        </form>
     </div>
 
 

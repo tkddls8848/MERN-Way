@@ -4,6 +4,7 @@ import Express from 'express';
 
 const app = Express();
 const MethodOverride = require('method-override');
+
 app.use(Express.urlencoded({extended: true}));
 app.use(Express.json({extended: true}));
 app.use(MethodOverride('_method'));
@@ -90,3 +91,11 @@ app.get('/', (request, response) => {
 app.get('/register-todos', (request, response) => {
     response.render(__dirname + "/view/write.ejs");
 });
+
+app.get('/login', (request, response) => {
+    response.render(__dirname + "/view/login.ejs");
+});
+//passport 미들웨어 use 요망
+app.post('/login', (request, response) => {
+    console.log(request.body.id, request.body.pw);
+})
