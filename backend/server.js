@@ -1,12 +1,13 @@
-import mongoUrl from './url.js'
 import { response, request } from 'express';
 import Express from 'express';
+
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
 const session = require('express-session');
 const MethodOverride = require('method-override');
 
 const app = Express();
+require('dotenv').config();
 
 app.use(Express.urlencoded({extended: true}));
 app.use(Express.json({extended: true}));
@@ -16,15 +17,15 @@ app.use(session({secret : '비밀코드', resave : true, saveUninitialized: fals
 app.use(passport.initialize());
 app.use(passport.session());
 
-const AuthUrl = mongoUrl;
+const AuthUrl = process.env.DB_URL;
 const MongoClient = require('mongodb').MongoClient;
 
 MongoClient.connect(AuthUrl, (err, client) => {
 
     const db = client.db('todoapp');
 
-    app.listen(8080, () => {
-        console.log("listening port 8080")
+    app.listen(process.env.PORT, () => {
+        console.log("listening port " + process.env.PORT)
     }); 
 
     passport.use(new LocalStrategy({
