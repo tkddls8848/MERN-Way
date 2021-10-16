@@ -1,23 +1,55 @@
 import mongoUrl from './url.js'
 import { response, request } from 'express';
 import Express from 'express';
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const session = require('express-session');
+const MethodOverride = require('method-override');
 
 const app = Express();
-const MethodOverride = require('method-override');
 
 app.use(Express.urlencoded({extended: true}));
 app.use(Express.json({extended: true}));
 app.use(MethodOverride('_method'));
 app.set("view engine", "ejs");
+app.use(session({secret : '비밀코드', resave : true, saveUninitialized: false}));
+app.use(passport.initialize());
+app.use(passport.session());
 
 const AuthUrl = mongoUrl;
 const MongoClient = require('mongodb').MongoClient;
+
 MongoClient.connect(AuthUrl, (err, client) => {
 
     const db = client.db('todoapp');
 
     app.listen(8080, () => {
         console.log("listening port 8080")
+    }); 
+
+    passport.use(new LocalStrategy({
+        usernameField: 'id',
+        passwordField: 'pw',
+        session: true,
+        passReqToCallback: false,
+    }, (userid, userpw, done) => {
+        db.collection('login').findOne({ id: userid }, (err, result) => {
+            if (err) return done(err)        
+            if (!result) return done(null, false, { message: '존재하지않는 아이디요' })
+            if (userpw == result.pw) {
+                return done(null, result)
+            } else {
+                return done(null, false, { message: '비번틀렸어요' })
+            }
+        })
+    }));
+
+    passport.serializeUser((user, done) => {
+        done(null, user.id)
+    });
+    
+    passport.deserializeUser((아이디, done) => {
+        done(null, {})
     }); 
 
     app.post('/add', (request, response) => {
@@ -82,20 +114,22 @@ MongoClient.connect(AuthUrl, (err, client) => {
         }
     });
 
-});
+    app.get('/', (request, response) => {
+        response.render(__dirname + "/view/home.ejs");
+    });
 
-app.get('/', (request, response) => {
-    response.render(__dirname + "/view/home.ejs");
-});
+    app.get('/register-todos', (request, response) => {
+        response.render(__dirname + "/view/write.ejs");
+    });
 
-app.get('/register-todos', (request, response) => {
-    response.render(__dirname + "/view/write.ejs");
-});
+    app.get('/login', (request, response) => {
+        response.render(__dirname + '/view/login.ejs')
+    });
+    app.post('/login', passport.authenticate('local', {failureRedirect : '/fail'}), (request, response) => {
+        response.redirect('/')
+    });
 
-app.get('/login', (request, response) => {
-    response.render(__dirname + "/view/login.ejs");
+    app.get('/fail', (request,response) => {
+        response.render(__dirname + '/view/fail.ejs')
+    });
 });
-//passport 미들웨어 use 요망
-app.post('/login', (request, response) => {
-    console.log(request.body.id, request.body.pw);
-})
