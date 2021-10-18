@@ -17,6 +17,13 @@ app.use(session({secret : process.env.SECRET, resave : true, saveUninitialized: 
 app.use(passport.initialize());
 app.use(passport.session());
 
+const login_check = (request, response, next) => {
+    if(request.user) {
+        next()
+    } else {
+        response.send({message:'Not Login'})
+    }
+};
 const AuthUrl = process.env.DB_URL;
 const MongoClient = require('mongodb').MongoClient;
 
@@ -138,14 +145,6 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.get('/fail', (request,response) => {
         response.render(__dirname + '/view/fail.ejs')
     });
-
-    function login_check(request, response, next) {
-        if(request.user) {
-            next()
-        } else {
-            response.send({message : 'Not Login'});
-        }
-    };
 
     app.get('/mypage', login_check, (request, response) => {
         console.log(request)
