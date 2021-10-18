@@ -13,7 +13,7 @@ app.use(Express.urlencoded({extended: true}));
 app.use(Express.json({extended: true}));
 app.use(MethodOverride('_method'));
 app.set("view engine", "ejs");
-app.use(session({secret : '비밀코드', resave : true, saveUninitialized: false}));
+app.use(session({secret : process.env.SECRET, resave : true, saveUninitialized: false}));
 app.use(passport.initialize());
 app.use(passport.session());
 
@@ -38,6 +38,7 @@ MongoClient.connect(AuthUrl, (err, client) => {
             if (err) return done(err)        
             if (!result) return done(null, false, { message: '존재하지않는 아이디요' })
             if (userpw == result.pw) {
+                console.log('asdf', result)
                 return done(null, result)
             } else {
                 return done(null, false, { message: '비번틀렸어요' })
@@ -46,11 +47,14 @@ MongoClient.connect(AuthUrl, (err, client) => {
     }));
 
     passport.serializeUser((user, done) => {
-        done(null, user.id)
+        console.log('asdfsdf', user, user.id)
+        done(null, user)
     });
     
-    passport.deserializeUser((아이디, done) => {
-        done(null, {})
+    passport.deserializeUser((user, done) => {
+        db.collection('login').findOne({id: user.id}, (err, result) => {
+            done(null, result)
+        });
     }); 
 
     app.post('/add', (request, response) => {
@@ -126,6 +130,7 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.get('/login', (request, response) => {
         response.render(__dirname + '/view/login.ejs')
     });
+
     app.post('/login', passport.authenticate('local', {failureRedirect : '/fail'}), (request, response) => {
         response.redirect('/')
     });
@@ -133,4 +138,18 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.get('/fail', (request,response) => {
         response.render(__dirname + '/view/fail.ejs')
     });
+
+    function login_check(request, response, next) {
+        if(request.user) {
+            next()
+        } else {
+            response.send({message : 'Not Login'});
+        }
+    };
+
+    app.get('/mypage', login_check, (request, response) => {
+        console.log(request)
+        response.render(__dirname + "/view/mypage.ejs", {username: request.user})
+    });
+    
 });
