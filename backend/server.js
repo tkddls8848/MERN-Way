@@ -1,5 +1,4 @@
-import { response, request } from 'express';
-import Express from 'express';
+import Express, { response } from 'express';
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -54,7 +53,7 @@ MongoClient.connect(AuthUrl, (err, client) => {
     }));
 
     passport.serializeUser((user, done) => {
-        console.log('asdfsdf', user, user.id)
+        console.log('serializeUser', user, user.id)
         done(null, user)
     });
     
@@ -67,7 +66,6 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.post('/add', (request, response) => {
         try {
             db.collection('counter').findOne({name: 'totalcount'}, (err, result) => {
-                console.log("result.count", result.count);
                 let cnt = result.count;
                 db.collection('post').insertOne({cnt: cnt, title: request.body.title, date: request.body.date});
                 console.log("cnt, request.body.title, request.body.date", cnt, request.body.title, request.body.date);
@@ -82,7 +80,7 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.put('/add', (request,response) => {
         try {
             db.collection('post').updateOne({cnt : parseInt(request.body.cnt)}, {$set: {title: request.body.title, date: request.body.date}},(err,result) => {
-                response.redirect("/");
+                response.redirect("/lists");
             });
         } catch (e) {
             console.log(e);
@@ -125,6 +123,13 @@ MongoClient.connect(AuthUrl, (err, client) => {
             console.log(e);
         }
     });
+
+    app.get('/search', (request, response) => {
+        console.log(request.query)
+        db.collection('post').find({title : request.query.text}).toArray((err, result) => {
+            response.render(__dirname + '/view/list.ejs', {posts: result})
+        })
+    })
 
     app.get('/', (request, response) => {
         response.render(__dirname + "/view/home.ejs");
