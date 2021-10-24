@@ -126,7 +126,18 @@ MongoClient.connect(AuthUrl, (err, client) => {
 
     app.get('/search', (request, response) => {
         console.log(request.query)
-        db.collection('post').find({title : request.query.text}).toArray((err, result) => {
+        let title_search = [{
+            $search: {
+                index: 'titleSearch',
+                text: {
+                    query: request.query.text,
+                    path: "title"
+                }
+            }
+        }]      
+        console.log(title_search)
+        db.collection('post').aggregate(title_search).toArray((err, result) => {
+            console.log('re', result)
             response.render(__dirname + '/view/list.ejs', {posts: result})
         })
     })
