@@ -64,45 +64,44 @@ MongoClient.connect(AuthUrl, (err, client) => {
     }); 
 
     app.post('/add', (request, response) => {
-        try {
-            db.collection('counter').findOne({name: 'totalcount'}, (err, result) => {
-                let cnt = result.count;
-                db.collection('post').insertOne({cnt: cnt, title: request.body.title, date: request.body.date});
-                console.log("cnt, request.body.title, request.body.date", cnt, request.body.title, request.body.date);
-                response.render(__dirname + "/view/home.ejs");
-                db.collection('counter').updateOne({name: 'totalcount'}, {$inc: {count: 1}});
-            });
-        } catch (e) {
-            console.log(e);
-        };
+        db.collection('counter').findOne({name: 'totalcount'}, (err, result) => {
+            let cnt = result.count;
+            let writer = request.user
+            console.log(writer)
+            db.collection('post').insertOne({cnt: cnt, title: request.body.title, date: request.body.date, author : writer});
+            console.log("cnt, request.body.title, request.body.date", cnt, request.body.title, request.body.date);
+            response.render(__dirname + "/view/home.ejs");
+            db.collection('counter').updateOne({name: 'totalcount'}, {$inc: {count: 1}});
+        });
     });
 
     app.put('/add', (request,response) => {
-        try {
+        //front와 별개로 backend에서 user 검사
+        if(request.user.id == request.body.author){
             db.collection('post').updateOne({cnt : parseInt(request.body.cnt)}, {$set: {title: request.body.title, date: request.body.date}},(err,result) => {
                 response.redirect("/lists");
             });
-        } catch (e) {
-            console.log(e);
         }
     });
 
     app.delete('/delete', (request, response) => {
-        console.log("DELETE", request.body)
-        try {
-            db.collection('post').deleteOne({cnt : parseInt(request.body.cnt)},(err,result) => {
-                response.render(__dirname + "/view/home.ejs");
-            });
-        } catch (e) {
-            console.log(e);
-        }
+        //front와 별개로 backend에서 user 검사
+        db.collection('post').findOne({cnt : parseInt(request.body.cnt)}, (err, result) => {
+            let sessionUser = request.user
+            let dataUser = result.author
+            if (sessionUser.id == dataUser.id) {
+                db.collection('post').deleteOne({cnt : parseInt(request.body.cnt)}, (err,result) => {
+                    response.render(__dirname + "/view/home.ejs");
+                });
+            }
+        })
     });
 
     app.get('/lists', (request, response) => {
         try {
             db.collection('post').find().toArray((err, result) => {
                 console.log("result", result);
-                response.render(__dirname + "/view/list.ejs", {posts : result});
+                response.render(__dirname + "/view/list.ejs", {posts : result, user : request.user});
             });
         } catch (e) {
             console.log('e' + e);
@@ -113,7 +112,6 @@ MongoClient.connect(AuthUrl, (err, client) => {
         try {
             db.collection('post').findOne({cnt : parseInt(request.params.id)}, (err, result) => {
                 if (result){
-                    console.log("result", result);
                     response.render(__dirname + '/view/edit.ejs', {post : result});
                 } else {
                     response.status(400).send("wrong todo number");
@@ -148,6 +146,13 @@ MongoClient.connect(AuthUrl, (err, client) => {
 
     app.get('/register-todos', (request, response) => {
         response.render(__dirname + "/view/write.ejs");
+    });
+
+    app.post('/register', (request, response) => {
+        console.log(request.body.id,request.body.pw)
+        db.collection('login').insertOne({id : request.body.id, pw: request.body.pw}, (err, result) => {
+            response.redirect("/");
+        })
     });
 
     app.get('/login', (request, response) => {

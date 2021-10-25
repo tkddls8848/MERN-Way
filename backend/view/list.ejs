@@ -26,8 +26,11 @@
           <li class="list-group-item">번호 : <%= posts[i].cnt %>
               <h5 class="card-title"><%= posts[i].title %></h5>
               <h5 class="card-title">날짜 : <%= posts[i].date %></h5>
-              <a href="/edit/<%= posts[i].cnt %>"><button type="button" class="btn btn-outline-primary" id="edit">수정</button></a>
-              <span class="delete"><button type="button" class="btn btn-danger" value="<%= posts[i].cnt %>">삭제</button></span>
+              <h5 class="card-title">작성자 : <%= posts[i].author.id %></h5>
+              <% if (user.id == posts[i].author.id) { %>
+                <a href="/edit/<%= posts[i].cnt %>"><button type="button" class="btn btn-outline-primary" id="edit">수정</button></a>
+                <span class="delete"><button type="button" class="btn btn-danger" value="<%= posts[i].cnt %>">삭제</button></span>
+              <% } %>
           </li>
         <% } %>
       </ul>
