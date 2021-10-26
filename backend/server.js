@@ -1,4 +1,6 @@
 import Express, { response } from 'express';
+import {MongoClient} from 'mongodb'
+import user_router from './routes/user'
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -15,6 +17,7 @@ app.set("view engine", "ejs");
 app.use(session({secret : process.env.SECRET, resave : true, saveUninitialized: false}));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use('/user', user_router)
 
 const login_check = (request, response, next) => {
     if(request.user) {
@@ -23,16 +26,16 @@ const login_check = (request, response, next) => {
         response.send({message:'Not Login'})
     }
 };
+
 const AuthUrl = process.env.DB_URL;
-const MongoClient = require('mongodb').MongoClient;
+
+app.listen(process.env.PORT, () => {
+    console.log("listening port " + process.env.PORT)
+});
 
 MongoClient.connect(AuthUrl, (err, client) => {
 
     const db = client.db('todoapp');
-
-    app.listen(process.env.PORT, () => {
-        console.log("listening port " + process.env.PORT)
-    }); 
 
     passport.use(new LocalStrategy({
         usernameField: 'id',
@@ -108,19 +111,12 @@ MongoClient.connect(AuthUrl, (err, client) => {
         }
     });
 
-    app.get('/edit/:id', (request, response) => {
-        try {
-            db.collection('post').findOne({cnt : parseInt(request.params.id)}, (err, result) => {
-                if (result){
-                    response.render(__dirname + '/view/edit.ejs', {post : result});
-                } else {
-                    response.status(400).send("wrong todo number");
-                }
-            });
-        } catch (e) {
-            console.log(e);
-        }
-    });
+    app.post('/register', (request, response) => {
+        console.log(request.body.id,request.body.pw)
+        db.collection('login').insertOne({id : request.body.id, pw: request.body.pw}, (err, result) => {
+            response.redirect("/");
+        })
+    })
 
     app.get('/search', (request, response) => {
         console.log(request.query)
@@ -140,6 +136,16 @@ MongoClient.connect(AuthUrl, (err, client) => {
         })
     })
 
+    app.get('/edit/:id', (request, response) => {
+        db.collection('post').findOne({cnt : parseInt(request.params.id)}, (err, result) => {
+            if (result){
+                response.render(__dirname + '/view/edit.ejs', {post : result});
+            } else {
+                response.status(400).send("wrong todo number");
+            }
+        });
+    });
+
     app.get('/', (request, response) => {
         response.render(__dirname + "/view/home.ejs");
     });
@@ -148,12 +154,7 @@ MongoClient.connect(AuthUrl, (err, client) => {
         response.render(__dirname + "/view/write.ejs");
     });
 
-    app.post('/register', (request, response) => {
-        console.log(request.body.id,request.body.pw)
-        db.collection('login').insertOne({id : request.body.id, pw: request.body.pw}, (err, result) => {
-            response.redirect("/");
-        })
-    });
+
 
     app.get('/login', (request, response) => {
         response.render(__dirname + '/view/login.ejs')
