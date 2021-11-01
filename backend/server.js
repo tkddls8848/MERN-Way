@@ -1,6 +1,8 @@
-import Express, { response } from 'express';
+import Express, { request, response } from 'express';
 import {MongoClient} from 'mongodb'
-import user_router from './routes/user'
+import multer from 'multer';
+import router from './routes/route';
+import path from 'path';
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -17,7 +19,19 @@ app.set("view engine", "ejs");
 app.use(session({secret : process.env.SECRET, resave : true, saveUninitialized: false}));
 app.use(passport.initialize());
 app.use(passport.session());
-app.use('/user', user_router)
+app.use('/route', router)
+
+let storage = multer.diskStorage({
+    destination:(request, file, cb) => {
+        cb(null, __dirname + '/upload')
+    },
+    filename:(request, file, cb) => {
+        let ext = path.extname(file.originalname)
+        let newfilename = String(path.basename(file.originalname, ext) + '-' + Date.now() + ext)
+        cb(null, newfilename)
+    }
+})
+const upload = multer({storage:storage})
 
 const login_check = (request, response, next) => {
     if(request.user) {
@@ -154,8 +168,6 @@ MongoClient.connect(AuthUrl, (err, client) => {
         response.render(__dirname + "/view/write.ejs");
     });
 
-
-
     app.get('/login', (request, response) => {
         response.render(__dirname + '/view/login.ejs')
     });
@@ -173,4 +185,15 @@ MongoClient.connect(AuthUrl, (err, client) => {
         response.render(__dirname + "/view/mypage.ejs", {username: request.user})
     });
     
+    app.get('/upload', (request, response) => {
+        response.render(__dirname + "/view/upload.ejs")
+    })
+
+    app.post('/upload', upload.single('title'), (request, response) => {
+        response.send("UPLOAD Complete")
+    })
+
+    app.get('/upload/:name', (request, response) => {
+        response.sendFile(__dirname + '/upload/' + request.params.name)
+    })
 });
