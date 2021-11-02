@@ -1,8 +1,10 @@
 import Express, { request, response } from 'express';
-import {MongoClient} from 'mongodb'
+import { MongoClient } from 'mongodb'
 import multer from 'multer';
 import router from './routes/route';
 import path from 'path';
+import { Server } from 'socket.io';
+import { createServer } from 'http';
 
 const passport = require('passport');
 const LocalStrategy = require('passport-local').Strategy;
@@ -20,6 +22,9 @@ app.use(session({secret : process.env.SECRET, resave : true, saveUninitialized: 
 app.use(passport.initialize());
 app.use(passport.session());
 app.use('/route', router)
+
+const http = createServer(app)
+const io = new Server(http)
 
 let storage = multer.diskStorage({
     destination:(request, file, cb) => {
@@ -43,9 +48,16 @@ const login_check = (request, response, next) => {
 
 const AuthUrl = process.env.DB_URL;
 
-app.listen(process.env.PORT, () => {
+http.listen(process.env.PORT, () => {
     console.log("listening port " + process.env.PORT)
 });
+
+io.on('connection', (socket) => {
+    console.log("connection")
+    socket.on("message", (chat) => {
+        console.log("chat message : " + chat)
+    })
+})
 
 MongoClient.connect(AuthUrl, (err, client) => {
 
@@ -196,4 +208,10 @@ MongoClient.connect(AuthUrl, (err, client) => {
     app.get('/upload/:name', (request, response) => {
         response.sendFile(__dirname + '/upload/' + request.params.name)
     })
+
+    app.get('/chat', (request, response) => {    
+        response.render(__dirname + '/view/chat.ejs')
+    })
+
+    
 });
