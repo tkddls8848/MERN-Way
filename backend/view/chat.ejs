@@ -16,12 +16,17 @@
 
     <!--form group-->
     <h4 class="text-center container mt-4"><strong>Chat Room</strong></h4>
-    <div>
+    <div class="mb-4">
       <input id="chat">
       <button class="btn btn-primary" id="button">채팅버튼</button>
     </div>
+    <div class="mb-4">
+      <input id="roomchat">
+      <button class="btn btn-secondary" id="chatroom1">채팅방1 입장</button>
+      <button class="btn btn-outline-secondary" id="sayroom1">채팅방1 대화입력</button>
+      <button class="btn btn-danger" id="leaveroom1">채팅방1 나가기</button>
+    </div>
     <div id="chatting"></div>
-
     <!-- Option 1: jQuery and Bootstrap Bundle (includes Popper) -->
     <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.6.0/dist/js/bootstrap.bundle.min.js" integrity="sha384-Piv4xVNRyMGpqkS2by6br4gNJ7DXjqk09RmUpJ8jgGtD7zP9yug3goQfGII0yAns" crossorigin="anonymous"></script>
@@ -31,6 +36,18 @@
 
       $('#button').click(() => {
         socket.emit('message', $("#chat").val())
+      })
+
+      $('#chatroom1').click(() => {
+        socket.emit('join-room1', "채팅방1 입장하셨습니다.")
+      })
+
+      $('#sayroom1').click(() => {
+        socket.emit('chat-room1', $("#roomchat").val())
+      })
+
+      $('#leaveroom1').click(() => {
+        socket.emit('leave-room1', "채팅방1을 나갔습니다.")
       })
 
       socket.on('broadcast', (data) => {

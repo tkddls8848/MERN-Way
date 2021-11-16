@@ -55,9 +55,22 @@ http.listen(process.env.PORT, () => {
 io.on('connection', (socket) => {
     console.log("socket id" + socket.id)
 
-    socket.on("message", (chat) => {
-        console.log(chat)
-        io.emit("broadcast", socket.id + " 님 : " + chat)
+    socket.on("message", (message) => {
+        io.emit("broadcast", socket.id + " 님 : " + message)
+    })
+
+    socket.on("join-room1", (message) => {
+        socket.join("room1")
+        io.to("room1").emit("broadcast", socket.id + " 님이 채팅방1을 들어왔습니다.")
+    })
+
+    socket.on("chat-room1", (message) => {
+        io.to("room1").emit("broadcast", "(채팅방1) " + socket.id + " 님 : " + message)
+    })
+
+    socket.on("leave-room1", (message) => {
+        io.to("room1").emit("broadcast", socket.id + " 님이 채팅방1을 나갔습니다.")
+        socket.leave("room1")
     })
 })
 
