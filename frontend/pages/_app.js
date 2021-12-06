@@ -1,11 +1,16 @@
-import '../styles/globals.css'
-import Layout from '../components/Layout'
+import 'semantic-ui-css/semantic.min.css'
+import Footer from '../src/component/footer'
+import Top from '../src/component/top'
 
 function MyApp({ Component, pageProps }) {
   return (
-      <Layout>
+    <div>
+        <Top />
         <Component {...pageProps} />
-      </Layout>
+        <Footer />
+    </div>
+
+
   )}
 
 export default MyApp

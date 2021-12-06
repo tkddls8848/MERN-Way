@@ -1,9 +1,12 @@
-import HeadInfo from '../components/HeadInfo'
+import Head from "next/head"
+
 
 const Home = () => {
   return (
     <div>
-      <HeadInfo title={'My Page'}/>
+      <Head>
+        <title>Title</title>
+      </Head>
       <h1>Welcome to the Jungle</h1>
     </div>
   )
