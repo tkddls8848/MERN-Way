@@ -1,0 +1,34 @@
+.wrap {
+  padding: 40px 0;
+  border-bottom: 1px solid #ccc;
+}
+
+.img_item {
+  flex: 200px 0 0;
+}
+.img_item img {
+  display: block;
+}
+
+.info_item {
+  flex: 1 0 0;
+}
+
+.tit_item {
+  display: block;
+  font-size: 20px;
+  margin-top: 10px;
+}
+
+.num_price {
+  display: block;
+  font-size: 25px;
+  margin-top: 10px;
+  color: #00bcd4;
+}
+
+.txt_info {
+  display: block;
+  font-size: 24px;
+  margin: 20px 0 40px;
+}

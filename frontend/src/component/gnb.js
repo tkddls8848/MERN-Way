@@ -1,7 +1,7 @@
 import React, { Component } from 'react'
 import { Menu } from 'semantic-ui-react'
 
-const Gnb = () => {
+const gnb = () => {
     const activeItem = "home"
     return (
       <Menu inverted>
@@ -19,4 +19,4 @@ const Gnb = () => {
     )  
 }
 
-export default Gnb
+export default gnb

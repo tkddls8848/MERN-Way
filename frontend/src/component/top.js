@@ -1,7 +1,7 @@
 import Gnb from "./gnb"
 import { Header } from "semantic-ui-react"
 
-const Top = () => {
+const top = () => {
     return (
         <div>
             <div style={{ display: "flex", paddingTop: 20 }}>
@@ -12,7 +12,7 @@ const Top = () => {
                     style={{ display: "block", width: 80 }}
                 />
                 </div>
-                <Header as="h2">This is Header</Header>
+                <Header as="h2">NextJS 페이지</Header>
             </div>
             <Gnb />
         </div>
@@ -20,4 +20,4 @@ const Top = () => {
         )
 }
 
-export default Top
+export default top
